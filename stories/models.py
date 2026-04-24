@@ -18,6 +18,8 @@ class UserStory(models.Model):
     assignee = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_stories')
     created_at = models.DateTimeField(auto_now_add=True)
-
+    class Meta:
+        verbose_name_plural = "User Stories"
+        
     def __str__(self):
         return self.title
