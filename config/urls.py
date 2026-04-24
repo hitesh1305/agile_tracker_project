@@ -6,4 +6,5 @@ urlpatterns = [
     path('api/', include('projects.urls')),
     path('api/', include('stories.urls')),
     path('api/', include('tasks.urls')),
+    path('api-auth/', include('rest_framework.urls')),
 ]

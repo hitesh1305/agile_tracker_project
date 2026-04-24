@@ -18,10 +18,11 @@ def project_stories(request, project_id):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required"}, status=401)
+
         serializer = UserStorySerializer(data=request.data)
         if serializer.is_valid():
-        
-            user = User.objects.first()
-            serializer.save(project=project, created_by=user)
+            serializer.save(project=project, created_by=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
