@@ -14,8 +14,9 @@
     <p class="text-muted">{{ story.description }}</p>
 
     <span class="badge 
-        {% if story.status == 'DONE' %} bg-success
-        {% elif story.status == 'IN_PROGRESS' %} bg-warning text-dark
+        {% if task.status == 'DONE' %} bg-success
+        {% elif task.status == 'IN_PROGRESS' %} bg-warning text-dark
+        {% elif task.status == 'OVERDUE' %} bg-danger
         {% else %} bg-secondary
         {% endif %}
     ">

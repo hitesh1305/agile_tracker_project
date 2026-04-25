@@ -10,5 +10,5 @@ def mark_overdue_tasks():
     )
 
     for task in overdue_tasks:
-        task.status = 'TODO'
+        task.status = 'OVERDUE'
         task.save()

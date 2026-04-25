@@ -9,6 +9,7 @@ from tasks.models import Task
 from django.shortcuts import redirect
 from tasks.models import Task
 from django.contrib.auth.decorators import login_required
+from tasks.utils import mark_overdue_tasks
 
 @login_required
 def create_task_view(request, story_id):
@@ -54,6 +55,7 @@ def project_stories(request, project_id):
 
 @login_required
 def story_detail_view(request, story_id):
+    mark_overdue_tasks()
     story = get_object_or_404(UserStory, id=story_id)
     tasks = Task.objects.filter(user_story=story).order_by('-created_at')
 
