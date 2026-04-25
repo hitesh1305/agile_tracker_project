@@ -7,6 +7,7 @@ urlpatterns = [
     # Frontend (UI)
     path('', include('projects.urls')),
     path('', include('stories.urls')), 
+    path('', include('tasks.urls')),
 
     # API
     path('api/', include('projects.urls')),

@@ -15,8 +15,8 @@ from tasks.utils import mark_overdue_tasks
 def create_task_view(request, story_id):
     story = get_object_or_404(UserStory, id=story_id)
 
-    # 🔒 ROLE CHECK
-    if request.user != story.project.owner:
+    # 🔒 STRICT PERMISSION CHECK
+    if request.user != story.project.owner or not request.user.is_staff:
         return redirect(f'/stories/{story.id}/')
 
     if request.method == 'POST':
@@ -55,9 +55,11 @@ def project_stories(request, project_id):
 
 @login_required
 def story_detail_view(request, story_id):
-    mark_overdue_tasks()
     story = get_object_or_404(UserStory, id=story_id)
-    tasks = Task.objects.filter(user_story=story).order_by('-created_at')
+
+    mark_overdue_tasks()  # keep this
+
+    tasks = Task.objects.filter(user_story=story)
 
     return render(request, 'story_detail.html', {
         'story': story,
@@ -67,8 +69,7 @@ def story_detail_view(request, story_id):
 def create_story_view(request, project_id):
     project = get_object_or_404(Project, id=project_id)
 
-    # 🔒 ROLE CHECK
-    if request.user != project.owner:
+    if request.user != project.owner or not request.user.is_staff:
         return redirect(f'/projects/{project.id}/')
 
     if request.method == 'POST':
@@ -81,3 +82,19 @@ def create_story_view(request, project_id):
         )
 
     return redirect(f'/projects/{project.id}/')
+
+def update_story_view(request, story_id):
+    story = get_object_or_404(UserStory, id=story_id)
+
+    # 🔒 permission
+    if request.user != story.project.owner or not request.user.is_staff:
+        return redirect(f'/projects/{story.project.id}/')
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+
+        if status in ['TODO', 'IN_PROGRESS', 'DONE']:
+            story.status = status
+            story.save()
+
+    return redirect(f'/projects/{story.project.id}/')

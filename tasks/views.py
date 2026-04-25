@@ -6,6 +6,7 @@ from .serializers import TaskSerializer
 from stories.models import UserStory
 from django.shortcuts import get_object_or_404
 from .utils import mark_overdue_tasks
+from django.shortcuts import redirect
 
 @api_view(['GET', 'POST'])
 def story_tasks(request, story_id):
@@ -43,20 +44,18 @@ def story_tasks(request, story_id):
     
 
 
-@api_view(['POST'])
-def update_task_status(request, task_id):
+def update_task_view(request, task_id):
     task = get_object_or_404(Task, id=task_id)
 
-    # 🔒 ROLE CHECK
-    if request.user != task.user_story.project.owner:
-        return Response({"error": "Permission denied"}, status=403)
+    # 🔒 Permission check (keep your logic)
+    if request.user != task.user_story.project.owner or not request.user.is_staff:
+        return redirect(f'/stories/{task.user_story.id}/')
 
-    status_value = request.POST.get("status")
+    if request.method == 'POST':
+        status = request.POST.get('status')
 
-    if status_value not in ['TODO', 'IN_PROGRESS', 'DONE']:
-        return Response({"error": "Invalid status"}, status=400)
+        if status in ['TODO', 'IN_PROGRESS', 'DONE']:
+            task.status = status
+            task.save()
 
-    task.status = status_value
-    task.save()
-
-    return Response({"message": "Task updated"})
+    return redirect(f'/stories/{task.user_story.id}/')

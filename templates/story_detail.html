@@ -25,9 +25,9 @@
 </div>
 
 <!-- Add New Task -->
+ {% if request.user == story.project.owner and request.user.is_staff %}
 <div class="card p-3 mb-4">
     <h6 class="mb-3">Add New Task</h6>
-
     <form method="post" action="/stories/{{ story.id }}/create-task/">
         {% csrf_token %}
 
@@ -42,7 +42,7 @@
         </button>
     </form>
 </div>
-
+    {% endif %}
 
 <!-- Tasks Header -->
 <div class="d-flex justify-content-between align-items-center mb-3">
@@ -75,7 +75,8 @@
             </div>
 
             <!-- Status Update Form -->
-            <form method="post" action="/api/tasks/{{ task.id }}/update/">
+             {% if request.user == story.project.owner and request.user.is_staff %}
+            <form method="post" action="/tasks/{{ task.id }}/update-ui/">
                 {% csrf_token %}
                 
                 <select name="status" class="form-select form-select-sm mb-2">
@@ -88,6 +89,7 @@
                     Update Status
                 </button>
             </form>
+            {% endif %}
 
         </div>
     </div>

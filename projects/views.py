@@ -19,20 +19,29 @@ def project_detail_view(request, project_id):
 
     tasks = Task.objects.filter(user_story__project=project)
 
-    total_tasks = tasks.count()
-    completed_tasks = tasks.filter(status='DONE').count()
+    total = tasks.count()
+    done = tasks.filter(status='DONE').count()
 
-    if total_tasks > 0:
-        progress = int((completed_tasks / total_tasks) * 100)
+    progress = int((done / total) * 100) if total > 0 else 0
+
+    progress_width = f"{progress}%"
+
+    if total == 0:
+        project_status = 'TODO'
+    elif done == total:
+        project_status = 'DONE'
+    elif done > 0:
+        project_status = 'IN_PROGRESS'
     else:
-        progress = 0   # VERY IMPORTANT
+        project_status = 'TODO'
 
     return render(request, 'project_detail.html', {
         'project': project,
         'stories': stories,
-        'progress': progress
+        'progress': progress,
+        'progress_width': progress_width,
+        'project_status': project_status
     })
-
 
 @api_view(['GET', 'POST'])
 def get_projects(request):
@@ -71,10 +80,14 @@ def project_detail_view(request, project_id):
     })
 
 def create_project_view(request):
+    if not request.user.is_staff:   # 🔒 ONLY PROJECT MANAGER
+        return redirect('/')
+
     if request.method == 'POST':
         Project.objects.create(
             name=request.POST.get('name'),
             description=request.POST.get('description'),
             owner=request.user
         )
+
     return redirect('/')
